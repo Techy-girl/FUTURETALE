@@ -12,7 +12,7 @@ Jaden here. In Opera the shortcut for the Developer Console is Ctrl-Shift-J, but
 All I did was go to the settings and search up "keyboard" without the quotes, and it should find it. If that doesn't work, try "shortcuts," again without the quotes.
 ---
  Jaden's code below*/
- 
+
 <<set $Frisk to {}>>
 <<set $Frisk.age to 16>>
 <<set $Frisk.Gold to 10>>
@@ -23,7 +23,7 @@ All I did was go to the settings and search up "keyboard" without the quotes, an
 <<set $Frisk.bday = new Date('April 22, 2015')>>
 <<set $Frisk.Legs to new Item("Dark Brown Pants")>>
 <<set $Frisk.Torso to new Item("Blue and Purple Striped Sweater")>>
-<<set $Frisk.Feet to new Item("Dark Brown Sneakers")>> 
+<<set $Frisk.Feet to new Item("Dark Brown Sneakers")>>
 <<set $Frisk.Head to undefined>>
 <<set $Frisk.Weapon to undefined>>
 /*Jaden's Item Controller Object*/
@@ -164,7 +164,7 @@ All I did was go to the settings and search up "keyboard" without the quotes, an
 		"January", "Februrary", "March", "April", "May", "June",
 		"July", "August", "September", "October", "November", "December"
 	];>>
-	/* Chapelr's code end */ 
+	/* Chapelr's code end */
 	/* Keyboard Event setup by Jaden*/
 	<<event click ".linkcheck">>
 	<<set $linkclicked to true>>
@@ -233,7 +233,9 @@ All I did was go to the settings and search up "keyboard" without the quotes, an
 	<<trigger 'click' '#pcsetting a'>>
 	<</event>>
 	/* Event setup finished */
-	
+
+  <<run customMods()>>
+
 :: StoryData
 
 {

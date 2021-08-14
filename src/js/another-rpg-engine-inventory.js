@@ -55,23 +55,31 @@ equippable -> object, must have a "slot" attribute; can also add data for restri
   }
 
 	get special() {
-      return (this.itemData.special || 0);
+    return (this.itemData.special || 0);
   }
 
 	get value() {
-			let r = (this.itemData.value || 0);
-			console.assert(Number.isInteger(r),`ERROR in value getter for ${this.name}: non-integer value`);
+		let r = (this.itemData.value || 0);
+		r = (r instanceof Function) ? r(this) : r;
+		console.assert(Number.isInteger(r),`ERROR in value getter for ${this.name}: non-integer value`);
 
-      return (this.itemData.value || 0);
+    return r;
   }
 
   get usable() {
-      return (this.itemData.usable || []);
+    return (this.itemData.usable || []);
   }
 
 	get onUse() {
-      return (this.itemData.onUse || undefined);
+    return (this.itemData.onUse || undefined);
   }
+
+	get instantUse() {
+		//	Boolean. If true, the item's onUse will be executed immediately, instead of requiring a target.
+		//	This is useful for e.g. items that affect the whole party or call up another passage for more detailed interaction.
+
+		return (this.itemData.instantUse || false);
+	}
 
 	get equippable() {
       return (this.itemData.equippable || undefined);
@@ -109,18 +117,48 @@ equippable -> object, must have a "slot" attribute; can also add data for restri
 		return (this.itemData.fakeName || false);
 	}
 
-	get type() {
-		return (this.itemData.type);
-	}
+	get stackSize() {
+		//	Integer. Maximum number of copies that can exist in an inventory.
+		//	Defaults to ITEM_MAX.
 
-	get points() {
-		return (this.itemData.points);
+		return (this.itemData.stackSize || setup.ITEM_MAX);
 	}
 
 	checkRestriction (puppet) {
 		//	DEPRECIATED as of v1.18. Use the Actor version instead.
 		// Shorthand for checking equipment restrictions. Returns true if puppet's name is in the restricted listing or if the restricted listing is empty.
 		return (this.equippable.restrictedTo.length == 0 || this.equippable.restrictedTo.includes(puppet.name));
+	}
+
+	toString () {
+		var text = `<span class="item-name">${this.name}</span>`;
+		text += `<span class="action-tags">x${this.stock}</span>`;
+		if (this.equippable) {
+			if (this.equippable.slot instanceof Set) {
+				text += `<div class="item-equippable">`;
+				var array = Array.from(this.equippable.slot).entries();
+				for (let [s,slot] of array) {
+					text += slot;
+					if (s < this.equippable.slot.size-1) text += " + ";
+				}
+				text += `</div>`;
+			} else {
+				text += `<div class="item-equippable">${this.equippable.slot}</div>`;
+			}
+			if (this.restrictedTo.length > 0) {
+				text += `<div class="item-equippable">Restriction:`
+				for (let [n,name] of this.restrictedTo) {
+					text += ` ${name}`;
+					if (n < this.restrictedTo.length-1) text += ",";
+				}
+				text += `</div>`;
+			}
+		}
+		text += `<div id="display-content">`;
+		text += `<div class="action-info">${this.info}</div>`;
+		if (this.desc !== null) text += `<div class="action-desc">${this.desc}</div>`;
+		text += `</div>`;
+		return text;
 	}
 
 	clone () {
@@ -134,6 +172,28 @@ equippable -> object, must have a "slot" attribute; can also add data for restri
 		const data = {};
 		Object.keys(this).forEach(pn => data[pn] = clone(this[pn]));
 		return JSON.reviveWrapper('new Item($ReviveData$)', data);
+	}
+};
+
+window.Filler = class Filler {
+	constructor(name) {
+		this.id = name;
+	}
+
+	toString () {
+		return "&mdash;&mdash;";
+	}
+
+	clone () {
+		// Return a new instance containing our current data.
+		return new Filler(this.id);
+	}
+
+	toJSON () {
+		// Return a code string that will create a new instance
+		// containing our current data.
+		let data = this.id;
+		return JSON.reviveWrapper('new Filler($ReviveData$)', data);
 	}
 };
 
